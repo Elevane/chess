@@ -5,10 +5,9 @@ import sys
 tile = 60
 piecesize = 60
 scale = 100
-screen = py.display.set_mode((800,800))
+WIDTH, HEIGHT = 800,800
+screen = py.display.set_mode((WIDTH,HEIGHT))
 py.display.set_caption("chess")
-
-
 knightw = py.image.load("images/knightw.png").convert_alpha()
 knightb = py.image.load("images/knightb.png").convert_alpha()
 rookb = py.image.load("images/rookb.png").convert_alpha()
@@ -103,44 +102,122 @@ pieces = [
     ["pawnw8", [8,7], True],
 ]
 
+class Chess:
 
-def drawBaord():
-    for y, row in enumerate(board):
-            for x, col in enumerate(row):
-                if col == 0:
-                    py.draw.rect(screen, (255,255,255),(y*tile+scale,x*tile+scale, tile, tile))
-                else:
-                    py.draw.rect(screen, (111,111,111), (y*tile+scale, x*tile+scale, tile, tile))
+    def __init__(self):
+        self.isDragingPiece = False
+        self.draggablepiece = []
 
 
-def drawPieces():
-    for p in pieces:
-        x = p[1][0] - 1 
-        y = p[1][1] - 1 
-        if(p[2]):
+    def drawBaord(self):
+        for y, row in enumerate(board):
+                for x, col in enumerate(row):
+                    if col == 0:
+                        py.draw.rect(screen, (255,255,255),(y*tile+scale,x*tile+scale, tile, tile))
+                    else:
+                        py.draw.rect(screen, (111,111,111), (y*tile+scale, x*tile+scale, tile, tile))
+
+    def GetPieceByChoords(self,pos):
+        for p in pieces:
+            x = p[1][0] - 1 
+            y = p[1][1] - 1 
             piecerect = py.Rect(x*tile+scale, y*tile+scale, piecesize, piecesize)
-            screen.blit(imgtowers[p[0]], piecerect)
-        
+            if(piecerect.collidepoint(pos)):
+                return p
 
-    
-
-def onHover():
-    mousepos = py.mouse.get_pos()
-    for p in pieces:
-        x = p[1][0] - 1 
-        y = p[1][1] - 1 
-        collidepiece = py.Rect((x*tile+scale, y*tile+scale,piecesize, piecesize ))
-        if(collidepiece.collidepoint(mousepos)):
-            py.draw.rect(screen,(255,0,0), collidepiece, width=3)
-            ##clickable
+    def drawOnePiece(self, pos, piece):
+        x = pos[0]
+        y = pos[1] 
+        piecerect = py.Rect(x - piecesize/2, y-piecesize/2, piecesize, piecesize)
+        screen.blit(imgtowers[piece[0]], piecerect)
+       
 
 
-while True:
-    py.display.update()
-    drawBaord()
-    drawPieces()
-    onHover()
-    for event in py.event.get():
-        if event.type == py.QUIT:
-            py.quit()
-            sys.exit()
+    def drawPieces(self):
+        for p in pieces:
+            x = p[1][0] - 1 
+            y = p[1][1] - 1 
+            if(p[2]):
+                piecerect = py.Rect(x*tile+scale, y*tile+scale, piecesize, piecesize)
+                screen.blit(imgtowers[p[0]], piecerect)
+            if len(p) == 4:
+                collidepiece = py.Rect((x*tile+scale, y*tile+scale,piecesize, piecesize))
+                py.draw.rect(screen,(255,0,0), collidepiece, width=3)
+
+    def DrawDraggedPiece(self):
+        if len(self.draggablepiece) > 0 and self.isDragingPiece:
+            self.drawOnePiece(py.mouse.get_pos(), self.draggablepiece)
+
+    def PlacePieceOnBoard(self, piece, pos):
+        for p in pieces:
+            if p == piece:
+                ## calculer les coords dans le board
+                coords = [4,4]
+                p[1] = coords
+
+
+    def hoverDraggable(self, piece):
+        for p in pieces:
+            if p == piece:
+                p.append(True)
+
+
+    def RemoveHoverDraggable(self, piece):
+        for p in pieces:
+            if p == piece:
+                if len(p) == 4:
+                    p[3] == False
+
+    def getBoardsPosFromMousePos(pos):
+        #TODO : calculer les coords d'une case de type board [0,1] a partir de la pos de la souris
+        pass
+
+    def onClick(self, event):      
+        piece = self.GetPieceByChoords(event.pos)
+        if not self.isDragingPiece:
+                if piece :
+                    self.isDragingPiece = True
+                    self.draggablepiece = piece
+                    self.hoverDraggable(piece)
+        else:
+            print("relache")
+            self.PlacePieceOnBoard(self.draggablepiece, event.pos)
+            self.isDragingPiece = False
+            self.RemoveHoverDraggable(self.draggablepiece)
+
+
+    def onHover(self):
+        mousepos = py.mouse.get_pos()
+        for p in pieces:
+            x = p[1][0] - 1 
+            y = p[1][1] - 1 
+            collidepiece = py.Rect((x*tile+scale, y*tile+scale,piecesize, piecesize ))
+            if(collidepiece.collidepoint(mousepos)):
+                py.draw.rect(screen,(255,0,0), collidepiece, width=3)
+                ##clickable
+
+
+    def drawBG(self):
+        bg = py.Rect(0,0, WIDTH, HEIGHT)
+        py.draw.rect(screen, (0,0,0), bg)
+
+    def run(self):
+        while True:
+           
+            py.display.update()
+            self.drawBG()
+            self.drawBaord()
+            self.drawPieces()
+            ##self.onHover()
+            self.DrawDraggedPiece()
+            for event in py.event.get():
+                if event.type == py.QUIT:
+                    py.quit()
+                    sys.exit()
+                elif event.type == py.MOUSEBUTTONDOWN:
+                    self.onClick(event)
+                 
+
+if "__main__" == __name__:
+    app = Chess()
+    app.run()
