@@ -6,6 +6,9 @@ piecesize = 60
 scale = 100
 WIDTH, HEIGHT = 800, 800
 screen = py.display.set_mode((WIDTH, HEIGHT))
+py.font.init()
+turn_text = py.font.SysFont('Comic Sans MS', 30)
+score_text = py.font.SysFont('Comic Sans MS', 20)
 py.mixer.init()
 piece_sound = py.mixer.Sound("sounds/sound_piece.mp3")
 py.display.set_caption("chess")
@@ -107,6 +110,8 @@ class Chess:
         self.isDragingPiece = False
         self.draggablepiece = []
         self.turn = "white"
+        self.white_points = 0
+        self.black_points = 0
 
     def draw_board(self):
         for y, row in enumerate(board):
@@ -163,6 +168,10 @@ class Chess:
         for p in pieces:
             if p[1] == pieceToCompare[1] and p[4] is not pieceToCompare[4]:
                 p[2] = False
+                if p[4] is "white":
+                    self.black_points += 1
+                else:
+                    self.white_points += 1
 
     def hover_draggable(self, piece):
         for p in pieces:
@@ -200,6 +209,15 @@ class Chess:
                 self.turn = "black"
             else:
                 self.turn = "white"
+    def display_turn(self):
+        textsurface = turn_text.render(self.turn, False, (255, 255, 255))
+        screen.blit(textsurface, (600, 50))
+
+    def display_score(self):
+        blackscore = score_text.render(f" score noir : {self.black_points}", False, (255, 255, 255))
+        whitescore = score_text.render(f" score blanc : {self.white_points}", False, (255, 255, 255))
+        screen.blit(blackscore, (600, 80))
+        screen.blit(whitescore, (600, 100))
 
     def on_hover(self):
         mousepos = py.mouse.get_pos()
@@ -217,7 +235,8 @@ class Chess:
 
     def run(self):
         while True:
-
+            self.display_turn()
+            self.display_score()
             py.display.update()
             self.draw_background()
             self.draw_board()
