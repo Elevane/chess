@@ -1,41 +1,40 @@
-
 import pygame as py
 import sys
 
 tile = 60
 piecesize = 60
 scale = 100
-WIDTH, HEIGHT = 800,800
-screen = py.display.set_mode((WIDTH,HEIGHT))
+WIDTH, HEIGHT = 800, 800
+screen = py.display.set_mode((WIDTH, HEIGHT))
+py.mixer.init()
+piece_sound = py.mixer.Sound("sounds/sound_piece.mp3")
 py.display.set_caption("chess")
 knightw = py.image.load("images/knightw.png").convert_alpha()
 knightb = py.image.load("images/knightb.png").convert_alpha()
 rookb = py.image.load("images/rookb.png").convert_alpha()
 rookw = py.image.load("images/rookw.png").convert_alpha()
-bishopw =  py.image.load("images/bishopw.png").convert_alpha()
-bishopb =  py.image.load("images/bishopb.png").convert_alpha()
-queenw=   py.image.load("images/queenw.png").convert_alpha()
-queenb=   py.image.load("images/queenb.png").convert_alpha()
-kingw =   py.image.load("images/kingw.png").convert_alpha()
-kingb =   py.image.load("images/kingb.png").convert_alpha()
-pawnw =   py.image.load("images/pawnw.png").convert_alpha()
-pawnb =   py.image.load("images/pawnb.png").convert_alpha()
-
+bishopw = py.image.load("images/bishopw.png").convert_alpha()
+bishopb = py.image.load("images/bishopb.png").convert_alpha()
+queenw = py.image.load("images/queenw.png").convert_alpha()
+queenb = py.image.load("images/queenb.png").convert_alpha()
+kingw = py.image.load("images/kingw.png").convert_alpha()
+kingb = py.image.load("images/kingb.png").convert_alpha()
+pawnw = py.image.load("images/pawnw.png").convert_alpha()
+pawnb = py.image.load("images/pawnb.png").convert_alpha()
 
 board = [
-    [0,1,0,1,0,1,0,1],
-    [1,0,1,0,1,0,1,0],
-    [0,1,0,1,0,1,0,1],
-    [1,0,1,0,1,0,1,0],
-    [0,1,0,1,0,1,0,1],
-    [1,0,1,0,1,0,1,0],
-    [0,1,0,1,0,1,0,1],
-    [1,0,1,0,1,0,1,0]
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0]
 ]
 
-
 imgtowers = {
-    "knightw" : knightw,
+    "knightw": knightw,
     "knightb": knightb,
     "rookw": rookw,
     "rookb": rookb,
@@ -45,178 +44,192 @@ imgtowers = {
     "queenb": queenb,
     "kingw": kingw,
     "kingb": kingb,
-    "pawnw1":pawnw,
-    "pawnb1":pawnb,
-    "pawnb2":pawnb,
-    "pawnb3":pawnb,
-    "pawnb4":pawnb,
-    "pawnb5":pawnb,
-    "pawnb6":pawnb,
-    "pawnb7":pawnb,
-    "pawnb8":pawnb,
-    "pawnw2":pawnw,
-    "pawnw3":pawnw,
-    "pawnw4":pawnw,
-    "pawnw5":pawnw,
-    "pawnw6":pawnw,
-    "pawnw7":pawnw,
-    "pawnw8":pawnw,
+    "pawn1w": pawnw,
+    "pawn1b": pawnb,
+    "pawn2b": pawnb,
+    "pawn3b": pawnb,
+    "pawn4b": pawnb,
+    "pawn5b": pawnb,
+    "pawn6b": pawnb,
+    "pawn7b": pawnb,
+    "pawn8b": pawnb,
+    "pawn2w": pawnw,
+    "pawn3w": pawnw,
+    "pawn4w": pawnw,
+    "pawn5w": pawnw,
+    "pawn6w": pawnw,
+    "pawn7w": pawnw,
+    "pawn8w": pawnw,
 }
 
 pieces = [
     ##black
-    ["knightb", [2,1], True],
-    ["knightb", [7,1], True],
-    ["rookb", [8,1], True],
-    ["rookb", [1,1], True],
-    ["bishopb", [6,1], True],
-    ["bishopb", [3,1], True],
-    ["kingb", [5,1], True],
-    ["queenb", [4,1], True],
-    ["pawnb1", [1,2], True],
-    ["pawnb2", [2,2], True],
-    ["pawnb3", [3,2], True],
-    ["pawnb4", [4,2], True],
-    ["pawnb5", [5,2], True],
-    ["pawnb6", [6,2], True],
-    ["pawnb7", [7,2], True],
-    ["pawnb8", [8,2], True],
-
+    ["knight", [2, 1], True, False, "black"],
+    ["knight", [7, 1], True, False, "black"],
+    ["rook", [8, 1], True, False, "black"],
+    ["rook", [1, 1], True, False, "black"],
+    ["bishop", [6, 1], True, False, "black"],
+    ["bishop", [3, 1], True, False, "black"],
+    ["king", [5, 1], True, False, "black"],
+    ["queen", [4, 1], True, False, "black"],
+    ["pawn1", [1, 2], True, False, "black"],
+    ["pawn2", [2, 2], True, False, "black"],
+    ["pawn3", [3, 2], True, False, "black"],
+    ["pawn4", [4, 2], True, False, "black"],
+    ["pawn5", [5, 2], True, False, "black"],
+    ["pawn6", [6, 2], True, False, "black"],
+    ["pawn7", [7, 2], True, False, "black"],
+    ["pawn8", [8, 2], True, False, "black"],
 
     ##white
-    ["knightw", [2,8], True],
-    ["knightw", [7,8], True],
-    ["rookw", [8,8], True],
-    ["rookw", [1,8], True],
-    ["bishopw", [6,8], True],
-    ["bishopw", [3,8], True],
-    ["kingw", [5,8], True],
-    ["queenw", [4,8], True],
-    ["pawnw1", [1,7], True],
-    ["pawnw2", [2,7], True],
-    ["pawnw3", [3,7], True],
-    ["pawnw4", [4,7], True],
-    ["pawnw5", [5,7], True],
-    ["pawnw6", [6,7], True],
-    ["pawnw7", [7,7], True],
-    ["pawnw8", [8,7], True],
+    ["knight", [2, 8], True, False, "white"],
+    ["knight", [7, 8], True, False, "white"],
+    ["rook", [8, 8], True, False, "white"],
+    ["rook", [1, 8], True, False, "white"],
+    ["bishop", [6, 8], True, False, "white"],
+    ["bishop", [3, 8], True, False, "white"],
+    ["king", [5, 8], True, False, "white"],
+    ["queen", [4, 8], True, False, "white"],
+    ["pawn1", [1, 7], True, False, "white"],
+    ["pawn2", [2, 7], True, False, "white"],
+    ["pawn3", [3, 7], True, False, "white"],
+    ["pawn4", [4, 7], True, False, "white"],
+    ["pawn5", [5, 7], True, False, "white"],
+    ["pawn6", [6, 7], True, False, "white"],
+    ["pawn7", [7, 7], True, False, "white"],
+    ["pawn8", [8, 7], True, False, "white"],
 ]
+
 
 class Chess:
 
     def __init__(self):
         self.isDragingPiece = False
         self.draggablepiece = []
+        self.turn = "white"
 
-
-    def drawBaord(self):
+    def draw_board(self):
         for y, row in enumerate(board):
-                for x, col in enumerate(row):
-                    if col == 0:
-                        py.draw.rect(screen, (255,255,255),(y*tile+scale,x*tile+scale, tile, tile))
-                    else:
-                        py.draw.rect(screen, (111,111,111), (y*tile+scale, x*tile+scale, tile, tile))
+            for x, col in enumerate(row):
+                if col == 0:
+                    py.draw.rect(screen, (255, 255, 255), (y * tile + scale, x * tile + scale, tile, tile))
+                else:
+                    py.draw.rect(screen, (111, 111, 111), (y * tile + scale, x * tile + scale, tile, tile))
 
-    def GetPieceByChoords(self,pos):
+    def get_piece_by_coords(self, pos):
         for p in pieces:
-            x = p[1][0] - 1 
-            y = p[1][1] - 1 
-            piecerect = py.Rect(x*tile+scale, y*tile+scale, piecesize, piecesize)
-            if(piecerect.collidepoint(pos)):
+            x = p[1][0] - 1
+            y = p[1][1] - 1
+            piecerect = py.Rect(x * tile + scale, y * tile + scale, piecesize, piecesize)
+            if (piecerect.collidepoint(pos)) and p[2] is not False:
                 return p
 
     def drawOnePiece(self, pos, piece):
         x = pos[0]
-        y = pos[1] 
-        piecerect = py.Rect(x - piecesize/2, y-piecesize/2, piecesize, piecesize)
-        screen.blit(imgtowers[piece[0]], piecerect)
-       
+        y = pos[1]
+        piecerect = py.Rect(x - piecesize / 2, y - piecesize / 2, piecesize, piecesize)
+        if piece[4] == "white":
+            screen.blit(imgtowers[piece[0] + "w"], piecerect)
+        else:
+            screen.blit(imgtowers[piece[0] + "b"], piecerect)
 
-
-    def drawPieces(self):
+    def draw_pieces(self):
         for p in pieces:
-            x = p[1][0] - 1 
-            y = p[1][1] - 1 
-            if(p[2]):
-                piecerect = py.Rect(x*tile+scale, y*tile+scale, piecesize, piecesize)
-                screen.blit(imgtowers[p[0]], piecerect)
-            if len(p) == 4:
-                collidepiece = py.Rect((x*tile+scale, y*tile+scale,piecesize, piecesize))
-                py.draw.rect(screen,(255,0,0), collidepiece, width=3)
+            x = p[1][0] - 1
+            y = p[1][1] - 1
+            if (p[2]):
+                piecerect = py.Rect(x * tile + scale, y * tile + scale, piecesize, piecesize)
+                if p[4] == "white":
+                    screen.blit(imgtowers[p[0] + "w"], piecerect)
+                else:
+                    screen.blit(imgtowers[p[0] + "b"], piecerect)
+            if p[3] is True:
+                color = (255, 0, 0) if p[4] is "white" else (0, 0, 255)
+                collidepiece = py.Rect((x * tile + scale, y * tile + scale, piecesize, piecesize))
+                py.draw.rect(screen, color, collidepiece, width=3)
 
-    def DrawDraggedPiece(self):
+    def draw_draggable_piece(self):
         if len(self.draggablepiece) > 0 and self.isDragingPiece:
             self.drawOnePiece(py.mouse.get_pos(), self.draggablepiece)
 
-    def PlacePieceOnBoard(self, piece, pos):
+    def place_piece_on_board(self, piece):
         for p in pieces:
-            if p == piece:
-                ## calculer les coords dans le board
-                coords = [4,4]
+            if p == piece and self.turn == p[4]:
+                coords = self.get_board_pos_from_mouse_pos()
                 p[1] = coords
+                self.has_piece_ont_it(p)
 
+    def has_piece_ont_it(self, pieceToCompare):
+        for p in pieces:
+            if p[1] == pieceToCompare[1] and p[4] is not pieceToCompare[4]:
+                p[2] = False
 
-    def hoverDraggable(self, piece):
+    def hover_draggable(self, piece):
         for p in pieces:
             if p == piece:
-                p.append(True)
+                p[3] = True
 
-
-    def RemoveHoverDraggable(self, piece):
+    def remove_hover_draggable(self, piece):
         for p in pieces:
             if p == piece:
-                if len(p) == 4:
-                    p[3] == False
+                p[3] = False
 
-    def getBoardsPosFromMousePos(pos):
-        #TODO : calculer les coords d'une case de type board [0,1] a partir de la pos de la souris
-        pass
+    def get_board_pos_from_mouse_pos(self):
+        for y, row in enumerate(board):
+            for x, col in enumerate(row):
+                posx = x * tile + scale
+                posy = y * tile + scale
+                boardsquarecollider = py.Rect(posx, posy, tile, tile)
+                if boardsquarecollider.collidepoint(py.mouse.get_pos()):
+                    return [x + 1, y + 1]
 
-    def onClick(self, event):      
-        piece = self.GetPieceByChoords(event.pos)
+    def on_click(self, event):
+        piece = self.get_piece_by_coords(event.pos)
         if not self.isDragingPiece:
-                if piece :
-                    self.isDragingPiece = True
-                    self.draggablepiece = piece
-                    self.hoverDraggable(piece)
+            if piece and piece[4] == self.turn:
+                self.isDragingPiece = True
+                self.draggablepiece = piece
+                self.hover_draggable(piece)
         else:
-            print("relache")
-            self.PlacePieceOnBoard(self.draggablepiece, event.pos)
+            self.place_piece_on_board(self.draggablepiece)
             self.isDragingPiece = False
-            self.RemoveHoverDraggable(self.draggablepiece)
+            self.remove_hover_draggable(self.draggablepiece)
+            self.draggablepiece = []
+            piece_sound.play()
+            if self.turn == "white":
+                self.turn = "black"
+            else:
+                self.turn = "white"
 
-
-    def onHover(self):
+    def on_hover(self):
         mousepos = py.mouse.get_pos()
         for p in pieces:
-            x = p[1][0] - 1 
-            y = p[1][1] - 1 
-            collidepiece = py.Rect((x*tile+scale, y*tile+scale,piecesize, piecesize ))
-            if(collidepiece.collidepoint(mousepos)):
-                py.draw.rect(screen,(255,0,0), collidepiece, width=3)
+            x = p[1][0] - 1
+            y = p[1][1] - 1
+            collidepiece = py.Rect((x * tile + scale, y * tile + scale, piecesize, piecesize))
+            if (collidepiece.collidepoint(mousepos)):
+                py.draw.rect(screen, (255, 0, 0), collidepiece, width=3)
                 ##clickable
 
-
-    def drawBG(self):
-        bg = py.Rect(0,0, WIDTH, HEIGHT)
-        py.draw.rect(screen, (0,0,0), bg)
+    def draw_background(self):
+        bg = py.Rect(0, 0, WIDTH, HEIGHT)
+        py.draw.rect(screen, (0, 0, 0), bg)
 
     def run(self):
         while True:
-           
+
             py.display.update()
-            self.drawBG()
-            self.drawBaord()
-            self.drawPieces()
-            ##self.onHover()
-            self.DrawDraggedPiece()
+            self.draw_background()
+            self.draw_board()
+            self.draw_pieces()
+            self.draw_draggable_piece()
             for event in py.event.get():
                 if event.type == py.QUIT:
                     py.quit()
                     sys.exit()
                 elif event.type == py.MOUSEBUTTONDOWN:
-                    self.onClick(event)
-                 
+                    self.on_click(event)
+
 
 if "__main__" == __name__:
     app = Chess()
